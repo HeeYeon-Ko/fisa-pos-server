@@ -4,9 +4,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import lombok.Getter;
 
 import java.math.BigDecimal;
 
+@Getter
+@Schema(name = "결제 요청", description = "결제 요청 DTO")
 public class PayRequest {
 
     @NotNull(message = "카드 번호는 필수값입니다.")
