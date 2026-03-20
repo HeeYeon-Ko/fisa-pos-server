@@ -1,6 +1,9 @@
 package dev.pos.pos_server.pay.dto;
 
+import dev.pos.pos_server.pay.entity.PaymentRequestStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -27,13 +30,16 @@ public class PayResponse {
     @Schema(description = "단말기 id", example = "TERM0001")
     private String terminalId;
 
-    public static PayResponse from(PayRequest request, String transactionId, String merchantId, String terminalId) {
+    private PaymentRequestStatus status;
+
+    public static PayResponse from(PayRequest request, String transactionId, String merchantId, String terminalId, PaymentRequestStatus status) {
         return new PayResponse(
                 transactionId,
                 request.getCardNumber(),
                 request.getAmount(),
                 merchantId,
-                terminalId
+                terminalId,
+                status
         );
     }
 }
