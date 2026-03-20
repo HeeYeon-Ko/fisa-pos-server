@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Pattern;
 
 import java.math.BigDecimal;
 
+@Schema(name = "결제 요청", description = "결제 요청 DTO")
 public class PayRequest {
 
     @NotNull(message = "카드 번호는 필수값입니다.")
