@@ -20,7 +20,7 @@ public class VanClient {
     // ISO8583 메시지를 VAN 서버로 보내는 메서드
     public String sendPaymentRequest(byte[] iso8583Message) {
         // VAN 서버의 엔드포인트
-        String url = "http://van-server.com/process"; // 실제 VAN 서버 URL로 변경 필요
+        String url = "http://localhost:8083"; // 실제 VAN 서버 URL로 변경 필요
 
         // HTTP 요청 헤더 설정
         HttpHeaders headers = new HttpHeaders();
