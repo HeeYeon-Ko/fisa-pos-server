@@ -55,7 +55,7 @@ public class PayService {
         System.out.println("VAN 서버 응답: " + vanResponse);
 
         // 결제 상태 결정
-        PaymentRequestStatus status = vanResponse.approved() ? PaymentRequestStatus.SUCCESS : PaymentRequestStatus.FAILED;
+        PaymentRequestStatus status = vanResponse.isApproved() ? PaymentRequestStatus.SUCCESS : PaymentRequestStatus.FAILED;
 
         // VAN 서버 응답에 따라 상태 업데이트
         updatePaymentStatus(payment.getId(), status);

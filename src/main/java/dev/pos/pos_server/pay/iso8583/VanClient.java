@@ -3,13 +3,17 @@ package dev.pos.pos_server.pay.iso8583;
 import dev.pos.pos_server.pay.dto.VanRequest;
 import dev.pos.pos_server.pay.dto.VanResponse;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
+import java.math.BigDecimal;
 import java.util.Base64;
+import java.util.concurrent.TimeUnit;
 
 // VAN 서버와의 통신 담당
 @Component
@@ -38,13 +42,56 @@ public class VanClient {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");
 
-        // HTTP 요청 바디에 VanRequest 객체 담기 (JSON 형식)
         HttpEntity<VanRequest> entity = new HttpEntity<>(request, headers);
 
-        // POST 요청을 보내고 응답 받기
-        ResponseEntity<VanResponse> response = restTemplate.exchange(url, HttpMethod.POST, entity, VanResponse.class);
+        try {
+            // VAN 서버로 요청 전송
+            ResponseEntity<VanResponse> response = restTemplate.exchange(url, HttpMethod.POST, entity, VanResponse.class);
+            return response.getBody();
+        } catch (HttpStatusCodeException e) {
+            // 서버 응답은 있으나 오류 발생 시 처리 (예: 500 에러)
+            return VanResponse.builder()
+                    .transactionId("unknown")
+                    .approvalNumber("")
+                    .responseCode("500")
+                    .message("Internal Server Error")
+                    .amount(BigDecimal.ZERO)
+                    .authorizationDate(null)
+                    .approved(false)
+                    .build();
+        } catch (ResourceAccessException e) {
+            // 연결이 안되거나 타임아웃이 발생했을 때 처리
+            // 15초 대기 후 FAILED 응답 반환
+            try {
+                // 15초 대기 후 응답 처리
+                TimeUnit.SECONDS.sleep(15);
+            } catch (InterruptedException interruptedException) {
+                // 대기 중 인터럽트가 발생할 경우에도 처리
+                Thread.currentThread().interrupt();
+            }
 
-        // 응답 메시지 반환
-        return response.getBody();
+            // VAN 서버와의 연결 실패 시 'FAILED'로 처리
+            return VanResponse.builder()
+                    .transactionId("unknown")
+                    .approvalNumber("")
+                    .responseCode("504")  // Gateway Timeout
+                    .message("VAN 서버 연결 실패 또는 타임아웃")
+                    .amount(BigDecimal.ZERO)
+                    .authorizationDate(null)
+                    .approved(false)
+                    .build();
+        } catch (Exception e) {
+            // 그 외의 예외 처리
+            return VanResponse.builder()
+                    .transactionId("unknown")
+                    .approvalNumber("")
+                    .responseCode("500")
+                    .message("예상치 못한 오류: " + e.getMessage())
+                    .amount(BigDecimal.ZERO)
+                    .authorizationDate(null)
+                    .approved(false)
+                    .build();
+        }
     }
+
 }
