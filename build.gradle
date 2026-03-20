@@ -28,7 +28,7 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
 
 	// j8583
-	implementation 'net.sf.j8583:j8583:1.17.0'
+	implementation 'net.sf.j8583:j8583:2.0.0'
 
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
