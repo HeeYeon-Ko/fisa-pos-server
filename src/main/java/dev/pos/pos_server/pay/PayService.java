@@ -41,11 +41,6 @@ public class PayService {
                 .amount(request.getAmount())
                 .merchantId(merchantId)
                 .terminalId(terminalId)
-                //.approvalNumber(null)  // 승인 번호는 응답 후에 채워짐
-                //.responseCode(null)    // 응답 코드
-                //.message(null)         // 응답 메시지
-                //.authorizationDate(null)  // 승인 날짜
-                //.approved(false)       // 승인 여부
                 .status(PaymentRequestStatus.PENDING)  // 요청 현황: PENDING으로 저장
                 .build();
         paymentRepository.save(payment);
@@ -68,21 +63,6 @@ public class PayService {
         return PayResponse.from(request, transactionId, merchantId, terminalId, status);
 
     }
-
-//    /**
-//     * JSON 형식의 응답을 VanResponse 객체로 변환
-//     * @param responseMessage
-//     * @return
-//     */
-//    private VanResponse parseVanResponseFromJson(String responseMessage) {
-//        try {
-//            // Jackson ObjectMapper를 사용하여 JSON을 VanResponse 객체로 변환
-//            ObjectMapper objectMapper = new ObjectMapper();
-//            return objectMapper.readValue(responseMessage, VanResponse.class);
-//        } catch (Exception e) {
-//            throw new RuntimeException("JSON 파싱 실패", e);
-//        }
-//    }
 
     // VAN 서버에서 응답을 받으면 상태를 성공/실패로 업데이트
     public void updatePaymentStatus(Long paymentId, PaymentRequestStatus status) {
