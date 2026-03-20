@@ -5,10 +5,9 @@ import dev.pos.pos_server.pay.dto.VanResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.ResourceAccessException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
 import java.math.BigDecimal;
@@ -19,16 +18,16 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class VanClient {
 
-    private final RestTemplate restTemplate;
+    private final RestClient restClient;
 
-    public VanClient(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
+    public VanClient(RestClient restClient) {
+        this.restClient = restClient;
     }
 
     // ISO8583 메시지를 VAN 서버로 보내는 메서드
     public VanResponse sendPaymentRequest(byte[] iso8583Message) {
         // VAN 서버의 엔드포인트
-        String url = "http://192.168.0.11:8083/van"; // 실제 VAN 서버 URL로 변경 필요
+        String url = "http://192.168.0.6:8083/van"; // 실제 VAN 서버 URL로 변경 필요
 
         // ISO8583 메시지를 Base64로 인코딩
         String encodedMessage = Base64.getEncoder().encodeToString(iso8583Message);
@@ -45,8 +44,14 @@ public class VanClient {
         HttpEntity<VanRequest> entity = new HttpEntity<>(request, headers);
 
         try {
-            // VAN 서버로 요청 전송
-            ResponseEntity<VanResponse> response = restTemplate.exchange(url, HttpMethod.POST, entity, VanResponse.class);
+            // 동기식으로 요청을 보내고 응답을 기다림
+            ResponseEntity<VanResponse> response = restClient.post()
+                    .uri(url)
+                    .body(request)
+                    .header("Content-Type", "application/json")
+                    .retrieve()
+                    .toEntity(VanResponse.class);
+
             return response.getBody();
         } catch (HttpStatusCodeException e) {
             // 서버 응답은 있으나 오류 발생 시 처리 (예: 500 에러)
