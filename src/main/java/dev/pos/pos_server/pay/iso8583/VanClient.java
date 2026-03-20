@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 
 import java.math.BigDecimal;
 import java.util.Base64;
-import java.util.concurrent.TimeUnit;
 
 // VAN 서버와의 통신 담당
 @Component
@@ -65,16 +64,6 @@ public class VanClient {
                     .approved(false)
                     .build();
         } catch (ResourceAccessException e) {
-            // 연결이 안되거나 타임아웃이 발생했을 때 처리
-            // 15초 대기 후 FAILED 응답 반환
-            try {
-                // 15초 대기 후 응답 처리
-                TimeUnit.SECONDS.sleep(15);
-            } catch (InterruptedException interruptedException) {
-                // 대기 중 인터럽트가 발생할 경우에도 처리
-                Thread.currentThread().interrupt();
-            }
-
             // VAN 서버와의 연결 실패 시 'FAILED'로 처리
             return VanResponse.builder()
                     .transactionId("unknown")
