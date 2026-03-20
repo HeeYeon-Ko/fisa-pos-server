@@ -2,15 +2,22 @@ package dev.pos.pos_server.pay;
 
 import dev.pos.pos_server.pay.dto.PayRequest;
 import dev.pos.pos_server.pay.dto.PayResponse;
+import dev.pos.pos_server.pay.iso8583.VanClient;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.Random;
 
 import static dev.pos.pos_server.pay.iso8583.Iso8583MessageBuilder.buildIso8583Message;
 
 @Service
-
 public class PayService {
+
+    private final VanClient vanClient;
+
+    public PayService(VanClient vanClient) {
+        this.vanClient = vanClient;
+    }
 
     /**
      * ISO 8583 변환 후 VAN 서버에 전송
@@ -26,13 +33,14 @@ public class PayService {
 
         // 2. 요청 ISO 메시지 생성
         byte[] message = buildIso8583Message(transactionId, request.getCardNumber(), request.getAmount(), terminalId, merchantId);
+        System.out.println(message);
 
         // 2. VAN 서버로 전송
-
+        String responseMessage = vanClient.sendPaymentRequest(message);
+        System.out.println("VAN 서버 응답: " + responseMessage);
 
         // 임시로 응답 만들기 (응답 내용은 나중에 보고 수정)
         return PayResponse.from(request, transactionId, merchantId, terminalId);
-
 
     }
 
