@@ -56,11 +56,8 @@ public class PayService {
         System.out.println(Arrays.toString(message));
 
         // VAN 서버로 전송
-        String responseMessage = vanClient.sendPaymentRequest(message);
-        System.out.println("VAN 서버 응답: " + responseMessage);
-
-        // JSON 형식의 응답을 VanResponse 객체로 변환
-        VanResponse vanResponse = parseVanResponseFromJson(responseMessage);
+        VanResponse vanResponse = vanClient.sendPaymentRequest(message);
+        System.out.println("VAN 서버 응답: " + vanResponse);
 
         // 결제 상태 결정
         PaymentRequestStatus status = vanResponse.approved() ? PaymentRequestStatus.SUCCESS : PaymentRequestStatus.FAILED;
@@ -72,20 +69,20 @@ public class PayService {
 
     }
 
-    /**
-     * JSON 형식의 응답을 VanResponse 객체로 변환
-     * @param responseMessage
-     * @return
-     */
-    private VanResponse parseVanResponseFromJson(String responseMessage) {
-        try {
-            // Jackson ObjectMapper를 사용하여 JSON을 VanResponse 객체로 변환
-            ObjectMapper objectMapper = new ObjectMapper();
-            return objectMapper.readValue(responseMessage, VanResponse.class);
-        } catch (Exception e) {
-            throw new RuntimeException("JSON 파싱 실패", e);
-        }
-    }
+//    /**
+//     * JSON 형식의 응답을 VanResponse 객체로 변환
+//     * @param responseMessage
+//     * @return
+//     */
+//    private VanResponse parseVanResponseFromJson(String responseMessage) {
+//        try {
+//            // Jackson ObjectMapper를 사용하여 JSON을 VanResponse 객체로 변환
+//            ObjectMapper objectMapper = new ObjectMapper();
+//            return objectMapper.readValue(responseMessage, VanResponse.class);
+//        } catch (Exception e) {
+//            throw new RuntimeException("JSON 파싱 실패", e);
+//        }
+//    }
 
     // VAN 서버에서 응답을 받으면 상태를 성공/실패로 업데이트
     public void updatePaymentStatus(Long paymentId, PaymentRequestStatus status) {

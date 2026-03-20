@@ -1,6 +1,7 @@
 package dev.pos.pos_server.pay.iso8583;
 
 import dev.pos.pos_server.pay.dto.VanRequest;
+import dev.pos.pos_server.pay.dto.VanResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.HttpEntity;
@@ -21,7 +22,7 @@ public class VanClient {
     }
 
     // ISO8583 메시지를 VAN 서버로 보내는 메서드
-    public String sendPaymentRequest(byte[] iso8583Message) {
+    public VanResponse sendPaymentRequest(byte[] iso8583Message) {
         // VAN 서버의 엔드포인트
         String url = "http://192.168.0.11:8083/van"; // 실제 VAN 서버 URL로 변경 필요
 
@@ -41,7 +42,7 @@ public class VanClient {
         HttpEntity<VanRequest> entity = new HttpEntity<>(request, headers);
 
         // POST 요청을 보내고 응답 받기
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+        ResponseEntity<VanResponse> response = restTemplate.exchange(url, HttpMethod.POST, entity, VanResponse.class);
 
         // 응답 메시지 반환
         return response.getBody();
